@@ -23,3 +23,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv/
+
+
+node_modules/
+backend/venv/
+.venv/
+__pycache__/

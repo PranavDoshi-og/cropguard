@@ -1,29 +1,45 @@
+import { predictCrop } from '../api/predict';
 import React, { useState } from 'react';
 import { Camera, Upload, Info, CheckCircle2, XCircle, ShieldAlert, Save, RefreshCw } from 'lucide-react';
 
-export default function Scanner() {
-  const [file, setFile] = useState(null);
+export default function Scanner({ t }) {
+  const [preview, setPreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [result, setResult] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const handleUpload = (e) => {
-    const selected = e.target.files[0];
-    if (selected) {
-      setFile(URL.createObjectURL(selected));
-      setSaved(false);
-      setShowResult(false);
-    }
-  };
+  const selected = e.target.files[0];
+  if (selected) {
+    setImageFile(selected);
+    setPreview(URL.createObjectURL(selected));
+    setSaved(false);
+    setShowResult(false);
+    setResult(null);
+  }
+};
   
-  const startAnalysis = () => {
-    setScanning(true);
-    // Simulate AI Processing time
-    setTimeout(() => {
-      setScanning(false);
-      setShowResult(true);
-    }, 3000);
-  };
+  const startAnalysis = async () => {
+  if (!imageFile) return;
+
+  setScanning(true);
+
+  const formData = new FormData();
+  formData.append("crop", "tomato");
+  formData.append("image", imageFile);
+
+  try {
+    const response = await predictCrop(formData);
+    setResult(response);
+    setShowResult(true);
+  } catch (error) {
+    alert("Backend error. Please try again.");
+  }
+
+  setScanning(false);
+};
 
  // Inside Scanner component...
     const saveToHistory = () => {
@@ -33,10 +49,9 @@ export default function Scanner() {
         crop: "Tomato",
         status: "Early Blight",
         risk: "High",
-        image: file // Saving the preview URL
+        image: preview // Saving the preview URL
     };
     
-    props.onSave(newEntry);
     setSaved(true);
     };
 
@@ -51,9 +66,9 @@ export default function Scanner() {
         {/* Step 1: Upload */}
         <div className="bg-slate-900/60 p-6 rounded-[2.5rem] border border-white/10 shadow-2xl relative">
           <div className="aspect-square rounded-[2rem] bg-black/40 border-2 border-dashed border-green-500/30 flex items-center justify-center relative overflow-hidden group">
-            {file ? (
+            {preview ? (
               <>
-                <img src={file} className={`w-full h-full object-cover ${scanning ? 'opacity-40' : 'opacity-100'} transition-opacity`} alt="Specimen" />
+                <img src={preview} className={`w-full h-full object-cover ${scanning ? 'opacity-40' : 'opacity-100'} transition-opacity`} alt="Specimen" />
                 {scanning && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <RefreshCw className="text-green-400 animate-spin mb-2" size={48} />
@@ -93,7 +108,7 @@ export default function Scanner() {
             </div>
           )}
 
-          {!file ? (
+          {!preview ? (
             <div className="p-6 bg-yellow-500/10 border border-yellow-500/20 rounded-3xl text-yellow-200/80 text-sm">
               <strong>Status:</strong> Awaiting image. Please capture a leaf photo to see analysis.
             </div>
@@ -120,8 +135,10 @@ export default function Scanner() {
                 <ShieldAlert className="text-yellow-500" size={32} />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-white">Tomato Early Blight</h3>
-                <p className="text-slate-400 font-mono text-xs uppercase tracking-widest">Confidence: 94.2%</p>
+                <h3 className="text-2xl font-bold text-white">{result?.prediction?.disease}</h3>
+                <p className="text-slate-400 font-mono text-xs uppercase tracking-widest">
+                  Confidence:{(result?.prediction?.confidence * 100).toFixed(2)}%
+                  </p>
               </div>
             </div>
             
