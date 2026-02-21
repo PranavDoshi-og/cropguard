@@ -1,0 +1,25 @@
+# Dependencies - Never upload these!
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds
+dist/
+build/
+out/
+
+# Environment secrets
+.env
+.env.local
+.env.production
+
+# IDE / Editor folders
+.vscode/
+.idea/
+.DS_Store
+
+# Python files (if using Flask for AI)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
