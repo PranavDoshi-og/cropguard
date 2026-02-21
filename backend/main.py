@@ -1,3 +1,5 @@
+from services.weather import get_weather
+from services.risk_logic import calculate_risk
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, Form
 import shutil
@@ -33,8 +35,16 @@ def predict(
 
     result = predict_disease(file_path, crop)
 
+    weather = get_weather(city)
+
+    risk = calculate_risk(
+        weather["temperature"],
+        weather["humidity"],
+        weather["rain"]
+    )
     return {
-        "crop": crop,
-        "filename": image.filename,
-        "prediction": result
+        "disease": predicted_class,
+        "confidence": confidence,
+        "weather": weather,
+        "risk_level": risk
     }
