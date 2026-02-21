@@ -1,12 +1,20 @@
 import requests
-
-API_KEY = "42bcbf1de423d555f9b59433d146fd35"
+import os
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 def get_weather(city: str):
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
     
-    response = requests.get(url)
-    data = response.json()
+    try:
+        response = requests.get(url)
+        data = response.json()
+    except Exception:
+        return{
+            "temperature": None,
+            "humidity": None,
+            "rain":0,
+            "error":"Weather service unavailable"
+        }
 
     if data.get("cod") != 200:
         return {"error": "Weather data not found"}

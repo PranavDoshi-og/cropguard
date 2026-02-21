@@ -24,27 +24,31 @@ def health_check():
     return {"status": "Okay"}
 
 @app.post("/predict")
-def predict(
-    crop: str = Form(...),
-    image: UploadFile = File(...)
+async def predict(
+    file: UploadFile = File(...),
+    city: str = Form(...),
 ):
-    file_path = os.path.join(UPLOAD_DIR, image.filename)
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(image.file, buffer)
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
 
-    result = predict_disease(file_path, crop)
+    predicted_class, confidence = predict_disease(file_path)
 
     weather = get_weather(city)
-
     risk = calculate_risk(
         weather["temperature"],
         weather["humidity"],
         weather["rain"]
     )
-    return {
+
+    prediction = {
         "disease": predicted_class,
         "confidence": confidence,
+    }
+
+    return {
+        "prediction": prediction,
         "weather": weather,
-        "risk_level": risk
+        "risk": risk,
     }
