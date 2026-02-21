@@ -5,6 +5,11 @@ from fastapi import FastAPI, UploadFile, File, Form
 import shutil
 import os
 from model.predictor import predict_disease
+from dotenv import load_dotenv
+
+# Load .env file with explicit path
+env_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path=env_path)
 
 app = FastAPI()
 
@@ -33,14 +38,17 @@ async def predict(
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
-    predicted_class, confidence = predict_disease(file_path)
+    predicted_class, confidence = predict_disease(file_path,"tomato")
 
     weather = get_weather(city)
-    risk = calculate_risk(
-        weather["temperature"],
-        weather["humidity"],
-        weather["rain"]
-    )
+    if weather.get("temperature") is None:
+        risk = {"level": "Unknown", "reason": "weather data unavailable"}
+    else:
+        risk = calculate_risk(
+            temp=weather["temperature"],
+            humidity=weather["humidity"],
+            rain=weather["rain"],
+        )
 
     prediction = {
         "disease": predicted_class,
