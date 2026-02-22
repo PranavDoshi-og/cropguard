@@ -1,5 +1,6 @@
 from services.weather import get_weather
 from services.risk_logic import calculate_risk
+from services.suggestions import get_suggestions
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 import shutil
@@ -46,22 +47,27 @@ async def predict(
     city: str = Form(...)
 ):
     try:
+        # Save image
         filename = f"{uuid4()}_{file.filename}"
         file_path = os.path.join(UPLOAD_DIR, filename)
 
         with open(file_path, "wb") as f:
-            f.write(await file.read())
+            shutil.copyfileobj(file.file, f)
 
+        # ML prediction
         predicted_class, confidence = predict_disease(file_path)
         crop = predicted_class.split("_")[0]
 
+        # Weather + Risk
         weather = get_weather(city)
         risk = calculate_risk(
             weather["temperature"],
             weather["humidity"],
             weather["rain"]
         )
-
+        # Suggestions
+        suggestions = get_suggestions(predicted_class, risk["level"])
+        # Save to DB
         db = SessionLocal()
         record = ImageRecord(
             crop=crop,
@@ -76,15 +82,17 @@ async def predict(
         db.close()
 
         return {
-            "prediction": {
-                "crop": crop,
-                "disease": predicted_class,
-                "confidence": confidence,
-                "risk": risk
-            },
-            "city": city
-        }
+        "prediction": {
+            "crop": crop,
+            "disease": predicted_class,
+            "confidence": confidence,
+            "risk": risk
+        },
+        "suggestions": suggestions,
+        "weather": weather,
+        "city": city
+    }
+
     except Exception as e:
-        print(f"Error in predict endpoint: {str(e)}")
-        print(traceback.format_exc())
+        print("Prediction error:", e)
         raise HTTPException(status_code=500, detail=str(e))

@@ -68,7 +68,7 @@ export default function Scanner({ t }) {
           <div className="aspect-square rounded-[2rem] bg-black/40 border-2 border-dashed border-green-500/30 flex items-center justify-center relative overflow-hidden group">
             {preview ? (
               <>
-                <img src={preview} className={`w-full h-full object-cover ${scanning ? 'opacity-40' : 'opacity-100'} transition-opacity`} alt="Specimen" />
+                <img src={preview} className={w-full h-full object-cover ${scanning ? 'opacity-40' : 'opacity-100'} transition-opacity} alt="Specimen" />
                 {scanning && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <RefreshCw className="text-green-400 animate-spin mb-2" size={48} />
@@ -145,7 +145,7 @@ export default function Scanner({ t }) {
             <button 
               onClick={saveToHistory}
               disabled={saved}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${saved ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-white text-black hover:bg-slate-200'}`}
+              className={flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${saved ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-white text-black hover:bg-slate-200'}}
             >
               <Save size={18} /> {saved ? 'Saved to Records' : 'Save Result'}
             </button>
