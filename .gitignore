@@ -31,3 +31,4 @@ backend/venv/
 __pycache__/
 
 .env
+dataset.zip
