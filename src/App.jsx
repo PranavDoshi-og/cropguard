@@ -1,30 +1,65 @@
-import React, { useState } from 'react';
-// ADD THIS LINE BELOW
-import { translations } from './utils/translations'; 
-
-import Navbar from './components/Navbar';
-import Scanner from './components/Scanner';
-import Dashboard from './components/Dashboard';
-import History from './components/History';
-import Alerts from './components/Alerts';
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Scanner from "./pages/Scanner";
+import Alerts from "./pages/Alerts";
+import History from "./pages/History";
+import ProtectedRoute from "./components/ProtectedRoute";
+import MainLayout from "./components/MainLayout";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('scanner');
-  const [lang, setLang] = useState('en');
-
-  // This is line 11 where the error was happening
-  const t = translations[lang]; 
-
   return (
-    <div className="min-h-screen">
-      <Navbar setPage={setCurrentPage} currentPage={currentPage} setLang={setLang} currentLang={lang} />
-      <main>
-        {currentPage === 'scanner' && <Scanner t={t} />}
-        {currentPage === 'dashboard' && <Dashboard t={t} />}
-        {currentPage === 'history' && <History t={t} />}
-        {currentPage === 'alerts' && <Alerts t={t} />}
-      </main>
-    </div>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Protected Routes with Layout */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Dashboard />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/scanner"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Scanner />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/alerts"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Alerts />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <History />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
