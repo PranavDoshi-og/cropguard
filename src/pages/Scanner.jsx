@@ -11,6 +11,32 @@ import {
 } from "lucide-react";
 
 export default function Scanner() {
+  const SOLUTIONS = {
+  Potato_Early_blight: {
+    organic: "Spray Neem Oil (3–5 ml/L) every 7 days. Remove infected leaves and improve air circulation.",
+    chemical: "Apply Mancozeb 75% WP (2 g/L) or Chlorothalonil. Repeat after 10 days if needed."
+  },
+  Potato_Late_blight: {
+    organic: "Use garlic extract spray weekly. Avoid overhead irrigation.",
+    chemical: "Metalaxyl + Mancozeb (Ridomil Gold). Spray immediately after symptoms appear."
+  },
+  Tomato_Early_blight: {
+    organic: "Neem oil or baking soda spray (1/2 tsp per liter). Remove affected leaves.",
+    chemical: "Mancozeb or Copper Fungicide (2 g/L)."
+  },
+  Tomato_Late_blight: {
+    organic: "Milk spray (1:10 ratio) early morning. Avoid wet foliage.",
+    chemical: "Metalaxyl-M + Mancozeb or Cymoxanil."
+  },
+  Potato_healthy: {
+    organic: "Maintain crop rotation and proper spacing.",
+    chemical: "No chemical treatment required."
+  },
+  Tomato_healthy: {
+    organic: "Balanced fertilization and good drainage.",
+    chemical: "No chemical treatment required."
+  }
+};
   const [city, setCity] = useState("");
   const [preview, setPreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -54,6 +80,20 @@ export default function Scanner() {
       setScanning(false);
     }
   };
+  const solution = SOLUTIONS[result?.prediction?.disease];
+  {result?.prediction?.risk && (
+  <div className="mt-6 p-5 rounded-2xl border border-yellow-500/30 bg-yellow-500/10">
+    <h4 className="text-yellow-400 font-bold mb-2 text-sm uppercase">
+      Weather Risk Assessment
+    </h4>
+    <p className="text-slate-300 text-sm">
+      <strong>Risk Level:</strong> {result.prediction.risk.level}
+    </p>
+    <p className="text-slate-400 text-xs mt-1">
+      {result.prediction.risk.reason}
+    </p>
+  </div>
+)}
 
   return (
     <div className="max-w-4xl mx-auto pt-6 px-4">
@@ -203,18 +243,18 @@ export default function Scanner() {
               <h4 className="text-green-400 font-bold mb-2 text-sm uppercase">
                 Organic Solution
               </h4>
-              <p className="text-slate-300 text-xs">
-                {result?.suggestions?.organic}
-              </p>
+              <p className="text-slate-300 text-xs leading-relaxed">
+      {solution?.organic || "No organic solution available"}
+    </p>
             </div>
 
             <div className="p-5 bg-blue-500/10 rounded-2xl border border-blue-500/20">
               <h4 className="text-blue-400 font-bold mb-2 text-sm uppercase">
                 Chemical Solution
               </h4>
-              <p className="text-slate-300 text-xs">
-                {result?.suggestions?.chemical}
-              </p>
+              <p className="text-slate-300 text-xs leading-relaxed">
+      {solution?.chemical || "No chemical solution available"}
+    </p>
             </div>
           </div>
         </div>
